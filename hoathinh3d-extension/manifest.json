@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "HoatHinh3D Automation",
+  "version": "1.0",
+  "description": "Auto tool Tác giả: Hoài NamNam, Zalo: 0325788806",
+  "author": "Hoài Nam",
+  "permissions": ["storage", "activeTab"],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["utils.js", "content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["zalo.png", "momo.png"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "icons": {
+    "128": "icon.png"
+  }
+}

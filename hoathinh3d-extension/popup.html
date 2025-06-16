@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>HoatHinh3D Domain Config</title>
+  <style>
+    body {
+      width: 300px;
+      padding: 10px;
+      font-family: Arial, sans-serif;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+    }
+    input {
+      width: 100%;
+      padding: 5px;
+      margin-bottom: 10px;
+    }
+    button {
+      padding: 8px 16px;
+      margin: 5px 5px 5px 0;
+      border: none;
+      cursor: pointer;
+      color: white;
+      border-radius: 3px;
+    }
+    #save {
+      background-color: #4CAF50;
+    }
+    #save:hover {
+      background-color: #45a049;
+    }
+    #contact {
+      background-color: #0088cc;
+    }
+    #contact:hover {
+      background-color: #0077b3;
+    }
+    #donate {
+      background-color: #d81b60;
+    }
+    #donate:hover {
+      background-color: #c2185b;
+    }
+    #status {
+      margin-top: 10px;
+      color: green;
+    }
+    #error {
+      margin-top: 10px;
+      color: red;
+    }
+    #qr-container {
+      margin-top: 10px;
+      text-align: center;
+      display: none;
+    }
+    #qr-image {
+      max-width: 100%;
+      height: auto;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <label for="domain">Enter HoatHinh3D Domain (e.g., https://hoathinh3d.com/):</label>
+  <input type="text" id="domain" placeholder="https://hoathinh3d.com/" />
+  <button id="save">Save</button>
+  <button id="contact">Contact</button>
+  <button id="donate">Donate</button>
+  <div id="status"></div>
+  <div id="error"></div>
+  <div id="qr-container">
+    <img id="qr-image" src="" alt="QR Code" />
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
