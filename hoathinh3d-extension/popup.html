@@ -1,80 +1,503 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
-  <title>HoatHinh3D Domain Config</title>
-  <style>
-    body {
-      width: 300px;
-      padding: 10px;
-      font-family: Arial, sans-serif;
-    }
-    label {
-      display: block;
-      margin-bottom: 5px;
-    }
-    input {
-      width: 100%;
-      padding: 5px;
-      margin-bottom: 10px;
-    }
-    button {
-      padding: 8px 16px;
-      margin: 5px 5px 5px 0;
-      border: none;
-      cursor: pointer;
-      color: white;
-      border-radius: 3px;
-    }
-    #save {
-      background-color: #4CAF50;
-    }
-    #save:hover {
-      background-color: #45a049;
-    }
-    #contact {
-      background-color: #0088cc;
-    }
-    #contact:hover {
-      background-color: #0077b3;
-    }
-    #donate {
-      background-color: #d81b60;
-    }
-    #donate:hover {
-      background-color: #c2185b;
-    }
-    #status {
-      margin-top: 10px;
-      color: green;
-    }
-    #error {
-      margin-top: 10px;
-      color: red;
-    }
-    #qr-container {
-      margin-top: 10px;
-      text-align: center;
-      display: none;
-    }
-    #qr-image {
-      max-width: 100%;
-      height: auto;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HoatHinh3D Automation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            width: 380px;
+            min-height: 600px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .container {
+            padding: 20px;
+            position: relative;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4);
+            border-radius: 2px;
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .logo {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 12px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .title {
+            font-size: 18px;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 4px;
+        }
+
+        .subtitle {
+            font-size: 12px;
+            color: rgba(255,255,255,0.8);
+            font-weight: 400;
+        }
+
+        /* Input Section */
+        .input-section {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .input-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 8px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: white;
+            color: #2d3748;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-1px);
+        }
+
+        /* Save Button */
+        .save-btn {
+            width: 100%;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-top: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .save-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .save-btn:hover::before {
+            left: 100%;
+        }
+
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .save-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Status Messages */
+        .status-container {
+            min-height: 20px;
+            margin: 10px 0;
+        }
+
+        #status, #error {
+            font-size: 12px;
+            text-align: center;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-weight: 500;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #status {
+            background: rgba(72, 187, 120, 0.1);
+            color: #2f855a;
+            border: 1px solid rgba(72, 187, 120, 0.2);
+        }
+
+        #error {
+            background: rgba(245, 101, 101, 0.1);
+            color: #c53030;
+            border: 1px solid rgba(245, 101, 101, 0.2);
+        }
+
+        /* Function Buttons */
+        .function-section {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .function-btn {
+            width: 100%;
+            padding: 14px 18px;
+            margin-bottom: 12px;
+            border: none;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .function-btn:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Function Button Colors */
+        .function-btn.primary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+        }
+
+        .function-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(79, 172, 254, 0.4);
+        }
+
+        /* Contact Buttons */
+        .contact-section {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .contact-btn {
+            width: 100%;
+            padding: 14px 18px;
+            margin-bottom: 12px;
+            border: none;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .contact-btn:last-child {
+            margin-bottom: 0;
+        }
+
+        .contact-btn.contact {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .contact-btn.contact:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+            animation: pulse 1s infinite;
+        }
+
+        .contact-btn.donate {
+            background: linear-gradient(135deg, #feca57 0%, #ff9ff3 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(254, 202, 87, 0.3);
+            position: relative;
+        }
+
+        .contact-btn.donate::before {
+            content: '✨';
+            position: absolute;
+            left: 15px;
+            animation: sparkle 2s infinite;
+        }
+
+        .contact-btn.donate:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(254, 202, 87, 0.4);
+            animation: rainbow 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: translateY(-2px) scale(1.02); }
+            50% { transform: translateY(-2px) scale(1.05); }
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.2); }
+        }
+
+        @keyframes rainbow {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        /* QR Container */
+        .qr-container {
+            display: none;
+            text-align: center;
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(255,255,255,0.95);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .qr-image {
+            max-width: 200px;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        /* Button Icons */
+        .btn-icon {
+            font-size: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 400px) {
+            body {
+                width: 320px;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+        }
+
+        /* Hover Effects */
+        .function-btn::before,
+        .contact-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .function-btn:hover::before,
+        .contact-btn:hover::before {
+            left: 100%;
+        }
+
+        /* Loading Animation */
+        .loading {
+            position: relative;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: translateY(-50%) rotate(0deg); }
+            100% { transform: translateY(-50%) rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
-  <label for="domain">Enter HoatHinh3D Domain (e.g., https://hoathinh3d.com/):</label>
-  <input type="text" id="domain" placeholder="https://hoathinh3d.com/" />
-  <button id="save">Save</button>
-  <button id="contact">Contact</button>
-  <button id="donate">Donate</button>
-  <div id="status"></div>
-  <div id="error"></div>
-  <div id="qr-container">
-    <img id="qr-image" src="" alt="QR Code" />
-  </div>
-  <script src="popup.js"></script>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <img src="icon.png" alt="HoatHinh3D Logo">
+            </div>
+            <div class="title">HoatHinh3D Automation</div>
+            <div class="subtitle">Tác giả: Hoài Nam • v1.0</div>
+        </div>
+
+        <!-- Input Section -->
+        <div class="input-section">
+            <label class="input-label" for="domain">
+                <i class="fas fa-globe btn-icon"></i>
+                Nhập Domain HoatHinh3D
+            </label>
+            <input type="text" id="domain" class="input-field" placeholder="https://hoathinh3d.gg/">
+            <button id="save" class="save-btn">
+                <i class="fas fa-save btn-icon"></i>
+                Lưu Cấu Hình
+            </button>
+            
+            <div class="status-container">
+                <div id="status"></div>
+                <div id="error"></div>
+            </div>
+        </div>
+
+        <!-- Function Buttons -->
+        <div class="function-section">
+            <div class="section-title">
+                <i class="fas fa-cogs btn-icon"></i>
+                Chức Năng Chính
+            </div>
+            
+            <button id="navGroup1" class="function-btn primary">
+                <i class="fas fa-gift btn-icon"></i>
+                Phúc Lợi, Thí Luyện, Bí Cảnh
+            </button>
+            
+            <button id="navGroup2" class="function-btn primary">
+                <i class="fas fa-users btn-icon"></i>
+                Vấn Đáp, Điểm Danh, Luận Võ, Tế Lễ
+            </button>
+            
+            <button id="navBangHoatDong" class="function-btn primary">
+                <i class="fas fa-chart-line btn-icon"></i>
+                Bảng Hoạt Động
+            </button>
+            
+            <button id="navDoThach" class="function-btn primary">
+                <i class="fas fa-gem btn-icon"></i>
+                Đổ Thạch
+            </button>
+
+            <button id="navHoangVuc" class="function-btn primary">
+                <i class="fas fa-mountain btn-icon"></i>
+                Hoang Vực
+            </button>
+        </div>
+
+        <!-- Contact Section -->
+        <div class="contact-section">
+            <div class="section-title">
+                <i class="fas fa-heart btn-icon"></i>
+                Liên Hệ & Hỗ Trợ
+            </div>
+            
+            <button id="contact" class="contact-btn contact">
+                <i class="fab fa-facebook-messenger btn-icon"></i>
+                Liên Hệ Zalo
+            </button>
+            
+            <button id="donate" class="contact-btn donate">
+                <i class="fas fa-coffee btn-icon"></i>
+                Ủng Hộ Tác Giả
+            </button>
+        </div>
+
+        <!-- QR Container -->
+        <div id="qr-container" class="qr-container">
+            <img id="qr-image" class="qr-image" src="/placeholder.svg" alt="QR Code">
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
 </body>
 </html>

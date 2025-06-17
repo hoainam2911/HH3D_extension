@@ -1,59 +1,92 @@
-'use strict';
-
 // Hàm kiểm tra URL có khớp với domain đã lưu không
 function isValidHoatHinh3DPage(callback) {
-  chrome.storage.sync.get(['hoathinh3dDomain'], (result) => {
-    const savedDomain = result.hoathinh3dDomain;
+  chrome.storage.sync.get(["hoathinh3dDomain"], (result) => {
+    const savedDomain = result.hoathinh3dDomain
     if (!savedDomain) {
-      console.log('[HoatHinh3D] No domain configured. Please set a domain in the extension popup.');
-      return;
+      console.log("[HoatHinh3D] No domain configured. Please set a domain in the extension popup.")
+      return
     }
-    const currentURL = window.location.href;
+    const currentURL = window.location.href
     if (currentURL.startsWith(savedDomain)) {
-      console.log(`[HoatHinh3D] Running on valid domain: ${savedDomain}`);
-      callback();
+      console.log(`[HoatHinh3D] Running on valid domain: ${savedDomain}`)
+      callback()
     } else {
-      console.log(`[HoatHinh3D] Current URL (${currentURL}) does not match saved domain (${savedDomain}). Skipping...`);
+      console.log(`[HoatHinh3D] Current URL (${currentURL}) does not match saved domain (${savedDomain}). Skipping...`)
     }
-  });
+  })
 }
 
 // Tạo div hiển thị đáp án
 function createAnswerOverlay() {
-  let overlay = document.getElementById('answer-overlay');
+  let overlay = document.getElementById("answer-overlay")
   if (!overlay) {
-    overlay = document.createElement('div');
-    overlay.id = 'answer-overlay';
-    overlay.style.position = 'fixed';
-    overlay.style.top = '10px';
-    overlay.style.left = '10px';
-    overlay.style.right = '10px';
-    overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
-    overlay.style.color = '#fff';
-    overlay.style.padding = '10px';
-    overlay.style.zIndex = '9999';
-    overlay.style.borderRadius = '5px';
-    overlay.style.fontFamily = 'Arial, sans-serif';
-    overlay.style.fontSize = '14px';
-    overlay.style.maxHeight = '150px';
-    overlay.style.overflowY = 'auto';
-    overlay.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.3)';
-    document.body.appendChild(overlay);
+    overlay = document.createElement("div")
+    overlay.id = "answer-overlay"
+    overlay.style.position = "fixed"
+    overlay.style.top = "10px"
+    overlay.style.left = "10px"
+    overlay.style.right = "10px"
+    overlay.style.backgroundColor = "rgba(0, 0, 0, 0.8)"
+    overlay.style.color = "#fff"
+    overlay.style.padding = "10px"
+    overlay.style.zIndex = "9999"
+    overlay.style.borderRadius = "5px"
+    overlay.style.fontFamily = "Arial, sans-serif"
+    overlay.style.fontSize = "14px"
+    overlay.style.maxHeight = "150px"
+    overlay.style.overflowY = "auto"
+    overlay.style.boxShadow = "0 2px 5px rgba(0, 0, 0, 0.3)"
+    document.body.appendChild(overlay)
   }
-  return overlay;
+  return overlay
 }
 
 // Cập nhật nội dung div hiển thị đáp án
 function updateAnswerOverlay(question, answer, status) {
-  const overlay = createAnswerOverlay();
-  let content = `<strong>Câu hỏi:</strong> ${question}<br>`;
+  const overlay = createAnswerOverlay()
+  let content = `<strong>Câu hỏi:</strong> ${question}<br>`
   if (answer) {
-    content += `<strong>Đáp án:</strong> ${answer}<br>`;
+    content += `<strong>Đáp án:</strong> ${answer}<br>`
   } else {
-    content += `<strong>Đáp án:</strong> Không tìm thấy<br>`;
+    content += `<strong>Đáp án:</strong> Không tìm thấy<br>`
   }
-  content += `<strong>Trạng thái:</strong> ${status}`;
-  overlay.innerHTML = content;
+  content += `<strong>Trạng thái:</strong> ${status}`
+  overlay.innerHTML = content
+}
+
+// Tạo overlay hiển thị trạng thái Hoang Vực
+function createHoangVucOverlay() {
+  let overlay = document.getElementById("hoang-vuc-overlay")
+  if (!overlay) {
+    overlay = document.createElement("div")
+    overlay.id = "hoang-vuc-overlay"
+    overlay.style.position = "fixed"
+    overlay.style.top = "10px"
+    overlay.style.right = "10px"
+    overlay.style.backgroundColor = "rgba(0, 0, 0, 0.9)"
+    overlay.style.color = "#fff"
+    overlay.style.padding = "15px"
+    overlay.style.zIndex = "9999"
+    overlay.style.borderRadius = "8px"
+    overlay.style.fontFamily = "Arial, sans-serif"
+    overlay.style.fontSize = "13px"
+    overlay.style.minWidth = "250px"
+    overlay.style.boxShadow = "0 4px 15px rgba(0, 0, 0, 0.3)"
+    overlay.style.border = "2px solid #4facfe"
+    document.body.appendChild(overlay)
+  }
+  return overlay
+}
+
+// Cập nhật nội dung overlay Hoang Vực
+function updateHoangVucOverlay(content) {
+  const overlay = createHoangVucOverlay()
+  overlay.innerHTML = `
+    <div style="text-align: center; margin-bottom: 10px;">
+      <strong style="color: #4facfe;">⚔️ HOANG VỰC AUTO ⚔️</strong>
+    </div>
+    ${content}
+  `
 }
 
 // Danh sách câu hỏi và đáp án
@@ -205,357 +238,771 @@ const questionAnswers = {
   "Nhân vật chính trong Quân Tử Vô Tật là ai?": "Dao Cơ",
   "Nhân vật chính trong Đấu Chiến Thiên Hạ là ai?": "Đại Phong",
   "Nhân vật chính trong Ta Có Thể Giác Ngộ Vô Hạn là ai?": "Tiêu Vân",
-  "Tại sao Hàn Lập khi gặp Phong Hi không chạy mà ở lại giúp đỡ chế tạo Phong Lôi Sí ?": "Vì đánh không lại"
-};
+  "Tại sao Hàn Lập khi gặp Phong Hi không chạy mà ở lại giúp đỡ chế tạo Phong Lôi Sí ?": "Vì đánh không lại",
+}
+
+// Kiểm tra trạng thái damage cho Hoang Vực
+function checkDamageStatus() {
+  const damageInfo = document.querySelector(".damage-info")
+  if (!damageInfo) {
+    return "unknown"
+  }
+
+  // Kiểm tra nếu bị ẩn (không buff/debuff)
+  if (damageInfo.style.display === "none") {
+    return "neutral"
+  }
+
+  // Kiểm tra có class increase-damage (tăng 15%)
+  if (damageInfo.querySelector(".increase-damage")) {
+    return "buff"
+  }
+
+  // Kiểm tra có class decrease-damage (giảm 15%)
+  if (damageInfo.querySelector(".decrease-damage")) {
+    return "debuff"
+  }
+
+  return "unknown"
+}
+
+// Lấy tên trạng thái damage
+function getDamageStatusText(status) {
+  switch (status) {
+    case "buff":
+      return "🔥 Tăng 15% Sát Thương"
+    case "neutral":
+      return "⚖️ Không Buff/Debuff"
+    case "debuff":
+      return "❄️ Giảm 15% Sát Thương"
+    default:
+      return "❓ Không Xác Định"
+  }
+}
+
+// Reset linh căn
+async function resetElement() {
+  return new Promise((resolve) => {
+    const resetButton = document.querySelector("#change-element-button")
+    if (!resetButton) {
+      console.log("[HoangVuc] Không tìm thấy nút reset linh căn")
+      resolve(false)
+      return
+    }
+
+    updateHoangVucOverlay(`
+      <div>📊 Trạng thái: ${getDamageStatusText(checkDamageStatus())}</div>
+      <div style="margin-top: 8px;">🔄 Đang reset linh căn...</div>
+    `)
+
+    resetButton.click()
+
+    // Đợi popup xuất hiện và nhấn xác nhận
+    setTimeout(() => {
+      const confirmButton = document.querySelector(".swal2-confirm")
+      if (confirmButton) {
+        confirmButton.click()
+
+        // Đợi reset hoàn tất
+        setTimeout(() => {
+          resolve(true)
+        }, 2000)
+      } else {
+        console.log("[HoangVuc] Không tìm thấy nút xác nhận")
+        resolve(false)
+      }
+    }, 1000)
+  })
+}
+
+// Kiểm tra xem có cần reset không
+function shouldReset(strategy, currentStatus) {
+  switch (strategy) {
+    case "none":
+      return false
+    case "avoid":
+      return currentStatus === "debuff"
+    case "buff":
+      return currentStatus !== "buff"
+    default:
+      return false
+  }
+}
+
+// Bắt đầu đánh boss
+async function startBattle() {
+  updateHoangVucOverlay(`
+    <div>📊 Trạng thái: ${getDamageStatusText(checkDamageStatus())}</div>
+    <div style="margin-top: 8px;">⚔️ Bắt đầu khiêu chiến...</div>
+  `)
+
+  const battleButton = document.querySelector("#battle-button")
+  if (battleButton) {
+    battleButton.click()
+
+    // Đợi và nhấn tấn công
+    setTimeout(() => {
+      const attackButton = document.querySelector(".attack-button")
+      if (attackButton) {
+        attackButton.click()
+        updateHoangVucOverlay(`
+          <div>📊 Trạng thái: ${getDamageStatusText(checkDamageStatus())}</div>
+          <div style="margin-top: 8px;">⚔️ Đã bắt đầu tấn công!</div>
+          <div style="margin-top: 5px; color: #4ade80;">✅ Hoàn thành!</div>
+        `)
+      }
+    }, 2000)
+  }
+}
+
+// Lấy tên chiến thuật
+function getStrategyText(strategy) {
+  switch (strategy) {
+    case "none":
+      return "🚫 Không Reset"
+    case "avoid":
+      return "🛡️ Tránh Debuff"
+    case "buff":
+      return "⚡ Tìm Buff"
+    default:
+      return "❓ Không Xác Định"
+  }
+}
+
+// Chức năng chính Hoang Vực
+async function hoangVuc() {
+  await sleep(1000)
+
+  // Lấy chiến thuật đã chọn
+  chrome.storage.sync.get(["hoangVucStrategy"], async (result) => {
+    const strategy = result.hoangVucStrategy || "none"
+    let resetCount = 0
+    const maxResets = 20 // Giới hạn số lần reset để tránh vòng lặp vô hạn
+
+    updateHoangVucOverlay(`
+      <div>🎯 Chiến thuật: ${getStrategyText(strategy)}</div>
+      <div style="margin-top: 8px;">📊 Đang kiểm tra trạng thái...</div>
+    `)
+
+    // Vòng lặp reset linh căn
+    while (resetCount < maxResets) {
+      const currentStatus = checkDamageStatus()
+
+      updateHoangVucOverlay(`
+        <div>🎯 Chiến thuật: ${getStrategyText(strategy)}</div>
+        <div style="margin-top: 8px;">📊 Trạng thái: ${getDamageStatusText(currentStatus)}</div>
+        <div style="margin-top: 5px;">🔄 Lần reset: ${resetCount}</div>
+      `)
+
+      if (!shouldReset(strategy, currentStatus)) {
+        updateHoangVucOverlay(`
+          <div>🎯 Chiến thuật: ${getStrategyText(strategy)}</div>
+          <div style="margin-top: 8px;">📊 Trạng thái: ${getDamageStatusText(currentStatus)}</div>
+          <div style="margin-top: 5px; color: #4ade80;">✅ Đã đạt yêu cầu!</div>
+        `)
+        break
+      }
+
+      const resetSuccess = await resetElement()
+      if (!resetSuccess) {
+        updateHoangVucOverlay(`
+          <div>🎯 Chiến thuật: ${getStrategyText(strategy)}</div>
+          <div style="margin-top: 8px;">❌ Reset thất bại!</div>
+        `)
+        break
+      }
+
+      resetCount++
+      await sleep(3000) // Đợi giữa các lần reset
+    }
+
+    if (resetCount >= maxResets) {
+      updateHoangVucOverlay(`
+        <div>🎯 Chiến thuật: ${getStrategyText(strategy)}</div>
+        <div style="margin-top: 8px;">⚠️ Đã đạt giới hạn reset!</div>
+        <div style="margin-top: 5px;">📊 Trạng thái: ${getDamageStatusText(checkDamageStatus())}</div>
+      `)
+    }
+
+    // Bắt đầu đánh boss sau 2 giây
+    setTimeout(() => {
+      startBattle()
+    }, 2000)
+  })
+}
 
 // Chạy logic chính nếu domain hợp lệ
 isValidHoatHinh3DPage(() => {
   function muteAllAudio() {
-    const currentURL = window.location.href;
-    if (!currentURL.includes('/phong-cuoi')) {
-      console.log('[MuteAllAudio] Not muting audio - URL does not contain /phong-cuoi');
-      return;
+    const currentURL = window.location.href
+    if (!currentURL.includes("/phong-cuoi")) {
+      console.log("[MuteAllAudio] Not muting audio - URL does not contain /phong-cuoi")
+      return
     }
-    console.log('[MuteAllAudio] Muting audio on /phong-cuoi page...');
+    console.log("[MuteAllAudio] Muting audio on /phong-cuoi page...")
     const blockAudio = () => {
-      document.querySelectorAll('audio, video').forEach(media => {
-        media.muted = true;
-        media.volume = 0;
-      });
-      const AudioProto = window.Audio && window.Audio.prototype;
+      document.querySelectorAll("audio, video").forEach((media) => {
+        media.muted = true
+        media.volume = 0
+      })
+      const AudioProto = window.Audio && window.Audio.prototype
       if (AudioProto && !AudioProto._play) {
-        AudioProto._play = AudioProto.play;
-        AudioProto.play = function() {
-          this.muted = true;
-          this.volume = 0;
-          return this._play.call(this);
-        };
+        AudioProto._play = AudioProto.play
+        AudioProto.play = function () {
+          this.muted = true
+          this.volume = 0
+          return this._play.call(this)
+        }
       }
-    };
-    blockAudio();
-    setInterval(blockAudio, 1000);
+    }
+    blockAudio()
+    setInterval(blockAudio, 1000)
   }
 
   async function vanDap() {
-    let questionTimeout = null;
-    let nextQuestionTimeout = null;
+    let questionTimeout = null
+    let nextQuestionTimeout = null
 
-    waitForElement('#start-quiz-button', button => {
-      console.log('Sẽ nhấn nút bắt đầu sau 2 giây...');
+    waitForElement("#start-quiz-button", (button) => {
+      console.log("Sẽ nhấn nút bắt đầu sau 1 giây...")
       setTimeout(() => {
-        button.click();
-        processNextQuestion();
-      }, 2000);
-    });
+        button.click()
+        processNextQuestion()
+      }, 1000)
+    })
 
     function processNextQuestion() {
-      if (questionTimeout) clearTimeout(questionTimeout);
-      if (nextQuestionTimeout) clearTimeout(nextQuestionTimeout);
+      if (questionTimeout) clearTimeout(questionTimeout)
+      if (nextQuestionTimeout) clearTimeout(nextQuestionTimeout)
 
-      waitForElement('#question', questionElement => {
-        questionTimeout = setTimeout(() => {
-          const questionText = questionElement.textContent.trim();
-          if (!questionText) {
-            console.warn('[ProcessQuestion] Question text is empty, retrying...');
-            updateAnswerOverlay(questionText, null, 'Câu hỏi trống, thử lại...');
-            nextQuestionTimeout = setTimeout(processNextQuestion, 2000);
-            return;
-          }
-          console.log(`[ProcessQuestion] Question: "${questionText}"`);
-
-          // So sánh trực tiếp với danh sách câu hỏi trong questionAnswers
-          let matchedAnswer = null;
-          let bestSimilarity = 0;
-          for (const [key, value] of Object.entries(questionAnswers)) {
-            const similarity = fuzzyMatch(key, questionText); // So sánh trực tiếp
-            if (similarity > bestSimilarity) {
-              bestSimilarity = similarity;
-              matchedAnswer = value;
-              console.log(`[Match] Potential match - Question: "${key}", Answer: "${value}", Similarity: ${similarity}`);
+      waitForElement(
+        "#question",
+        (questionElement) => {
+          questionTimeout = setTimeout(() => {
+            const questionText = questionElement.textContent.trim()
+            if (!questionText) {
+              console.warn("[ProcessQuestion] Question text is empty, retrying...")
+              updateAnswerOverlay(questionText, null, "Câu hỏi trống, thử lại...")
+              nextQuestionTimeout = setTimeout(processNextQuestion, 1000)
+              return
             }
-            if (similarity === 1) break; // Exact match, dừng tìm kiếm
-          }
+            console.log(`[ProcessQuestion] Question: "${questionText}"`)
 
-          if (matchedAnswer && bestSimilarity >= 0.9) {
-            console.log(`[Match] Confirmed match - Answer: "${matchedAnswer}", Similarity: ${bestSimilarity}`);
-            updateAnswerOverlay(questionText, matchedAnswer, 'Đang tìm tùy chọn...');
-            waitForElement('.options .option', () => {
-              const options = document.querySelectorAll('.options .option');
-              console.log(`[Options] Found ${options.length} options`);
-              let found = false;
-              options.forEach((option, index) => {
-                const optionText = option.textContent.trim();
-                console.log(`[Option ${index}] Raw: "${optionText}"`);
-                if (optionText === matchedAnswer) { // So sánh trực tiếp
-                  console.log(`[Click] Exact match for option: "${optionText}"`);
-                  try {
-                    option.click();
-                    console.log(`[Click] Clicked option ${index} successfully`);
-                    updateAnswerOverlay(questionText, matchedAnswer, 'Đã chọn tùy chọn khớp chính xác');
-                    found = true;
-                  } catch (e) {
-                    console.error(`[Click] Failed to click option ${index}:`, e);
-                    updateAnswerOverlay(questionText, matchedAnswer, 'Lỗi khi chọn tùy chọn');
-                  }
-                } else if (fuzzyMatch(optionText, matchedAnswer) >= 0.9) {
-                  console.log(`[Click] Fuzzy match for option: "${optionText}"`);
-                  try {
-                    option.click();
-                    console.log(`[Click] Clicked option ${index} successfully`);
-                    updateAnswerOverlay(questionText, matchedAnswer, 'Đã chọn tùy chọn khớp gần đúng');
-                    found = true;
-                  } catch (e) {
-                    console.error(`[Click] Failed to click option ${index}:`, e);
-                    updateAnswerOverlay(questionText, matchedAnswer, 'Lỗi khi chọn tùy chọn');
-                  }
-                }
-              });
-              if (!found) {
-                console.warn(`Không tìm thấy tùy chọn phù hợp cho đáp án: "${matchedAnswer}"`);
-                console.log('[Debug] Available options:', Array.from(options).map(o => o.textContent.trim()));
-                updateAnswerOverlay(questionText, matchedAnswer, 'Không tìm thấy tùy chọn phù hợp');
+            // So sánh trực tiếp với danh sách câu hỏi trong questionAnswers
+            let matchedAnswer = null
+            let bestSimilarity = 0
+            for (const [key, value] of Object.entries(questionAnswers)) {
+              const similarity = fuzzyMatch(key, questionText) // So sánh trực tiếp
+              if (similarity > bestSimilarity) {
+                bestSimilarity = similarity
+                matchedAnswer = value
+                console.log(
+                  `[Match] Potential match - Question: "${key}", Answer: "${value}", Similarity: ${similarity}`,
+                )
               }
-              nextQuestionTimeout = setTimeout(processNextQuestion, 2000);
-            }, 5000);
-          } else {
-            console.warn(`Không tìm thấy câu hỏi phù hợp: "${questionText}" (Best Similarity: ${bestSimilarity})`);
-            updateAnswerOverlay(questionText, null, 'Không tìm thấy câu hỏi phù hợp');
-            nextQuestionTimeout = setTimeout(processNextQuestion, 2000);
-          }
-        }, 2000);
-      }, 5000);
+              if (similarity === 1) break // Exact match, dừng tìm kiếm
+            }
+
+            if (matchedAnswer && bestSimilarity >= 0.9) {
+              console.log(`[Match] Confirmed match - Answer: "${matchedAnswer}", Similarity: ${bestSimilarity}`)
+              updateAnswerOverlay(questionText, matchedAnswer, "Đang tìm tùy chọn...")
+              waitForElement(
+                ".options .option",
+                () => {
+                  const options = document.querySelectorAll(".options .option")
+                  console.log(`[Options] Found ${options.length} options`)
+                  let found = false
+                  options.forEach((option, index) => {
+                    const optionText = option.textContent.trim()
+                    console.log(`[Option ${index}] Raw: "${optionText}"`)
+                    if (optionText === matchedAnswer) {
+                      // So sánh trực tiếp
+                      console.log(`[Click] Exact match for option: "${optionText}"`)
+                      try {
+                        option.click()
+                        console.log(`[Click] Clicked option ${index} successfully`)
+                        updateAnswerOverlay(questionText, matchedAnswer, "Đã chọn tùy chọn khớp chính xác")
+                        found = true
+                      } catch (e) {
+                        console.error(`[Click] Failed to click option ${index}:`, e)
+                        updateAnswerOverlay(questionText, matchedAnswer, "Lỗi khi chọn tùy chọn")
+                      }
+                    } else if (fuzzyMatch(optionText, matchedAnswer) >= 0.9) {
+                      console.log(`[Click] Fuzzy match for option: "${optionText}"`)
+                      try {
+                        option.click()
+                        console.log(`[Click] Clicked option ${index} successfully`)
+                        updateAnswerOverlay(questionText, matchedAnswer, "Đã chọn tùy chọn khớp gần đúng")
+                        found = true
+                      } catch (e) {
+                        console.error(`[Click] Failed to click option ${index}:`, e)
+                        updateAnswerOverlay(questionText, matchedAnswer, "Lỗi khi chọn tùy chọn")
+                      }
+                    }
+                  })
+                  if (!found) {
+                    console.warn(`Không tìm thấy tùy chọn phù hợp cho đáp án: "${matchedAnswer}"`)
+                    console.log(
+                      "[Debug] Available options:",
+                      Array.from(options).map((o) => o.textContent.trim()),
+                    )
+                    updateAnswerOverlay(questionText, matchedAnswer, "Không tìm thấy tùy chọn phù hợp")
+                  }
+                  nextQuestionTimeout = setTimeout(processNextQuestion, 1000)
+                },
+                3000,
+              )
+            } else {
+              console.warn(`Không tìm thấy câu hỏi phù hợp: "${questionText}" (Best Similarity: ${bestSimilarity})`)
+              updateAnswerOverlay(questionText, null, "Không tìm thấy câu hỏi phù hợp")
+              nextQuestionTimeout = setTimeout(processNextQuestion, 1000)
+            }
+          }, 1000)
+        },
+        3000,
+      )
     }
   }
 
   function diemDanh() {
-    waitForElement('#checkInButton', button => {
-      console.log('Sẽ nhấn nút Điểm Danh sau 2 giây...');
+    waitForElement("#checkInButton", (button) => {
+      console.log("Sẽ nhấn nút Điểm Danh sau 1 giây...")
       setTimeout(() => {
-        button.click();
-        console.log('Đã nhấn nút Điểm Danh!');
-      }, 2000);
-    });
+        button.click()
+        console.log("Đã nhấn nút Điểm Danh!")
+      }, 1000)
+    })
   }
 
   function phucLoi() {
     function openNextChest() {
       for (let i = 1; i <= 4; i++) {
-        const chest = document.querySelector(`#chest-${i}`);
-        if (chest && !chest.classList.contains('opened')) {
-          console.log(`Phát hiện rương ${i} chưa mở, sẽ thử mở sau 2 giây...`);
+        const chest = document.querySelector(`#chest-${i}`)
+        if (chest && !chest.classList.contains("opened")) {
+          console.log(`Phát hiện rương ${i} chưa mở, sẽ thử mở sau 1 giây...`)
           setTimeout(() => {
-            chest.click();
-            console.log(`Đã nhấn mở rương ${i}`);
-          }, 2000);
-          break;
+            chest.click()
+            console.log(`Đã nhấn mở rương ${i}`)
+          }, 1000)
+          break
         } else if (i === 4) {
-          console.log('Tất cả rương đã mở.');
+          console.log("Tất cả rương đã mở.")
         }
       }
-      setTimeout(openNextChest, 30000);
+      setTimeout(openNextChest, 15000)
     }
-    waitForElement('.chest-progress-container', () => {
-      console.log('Bắt đầu kiểm tra rương...');
-      openNextChest();
-    });
+    waitForElement(".chest-progress-container", () => {
+      console.log("Bắt đầu kiểm tra rương...")
+      openNextChest()
+    })
   }
 
   function thiLuyen() {
     function clickChestImage() {
-      const chest = document.querySelector('#chestImage');
-      if (chest && chest.classList.contains('chest-close')) {
-        console.log('Thí Luyện: Nhấn mở rương...');
-        chest.click();
+      const chest = document.querySelector("#chestImage")
+      if (chest && chest.classList.contains("chest-close")) {
+        console.log("Thí Luyện: Nhấn mở rương...")
+        chest.click()
       } else {
-        console.log('Thí Luyện: Rương chưa sẵn sàng hoặc đã mở.');
+        console.log("Thí Luyện: Rương chưa sẵn sàng hoặc đã mở.")
       }
-      setTimeout(clickChestImage, 30000);
+      setTimeout(clickChestImage, 15000)
     }
-    waitForElement('#chestImage', () => {
-      clickChestImage();
-    });
+    waitForElement("#chestImage", () => {
+      clickChestImage()
+    })
   }
 
   async function doThach() {
-    await sleep(3000);
-    await claimRewardIfAvailable();
-    const stones = Array.from(document.querySelectorAll('.stone-item'));
-    const stoneData = stones.map(stone => {
-      const multiplierText = stone.querySelector('.reward-multiplier span')?.textContent.trim() || '';
-      const multiplier = parseInt(multiplierText.replace('x', '')) || 0;
-      const button = stone.querySelector('.select-stone-button');
-      return { multiplier, button };
-    });
-    const sorted = stoneData.sort((a, b) => b.multiplier - a.multiplier);
-    const top2 = sorted.slice(0, 2);
+    await sleep(1000)
+    await claimRewardIfAvailable()
+    const stones = Array.from(document.querySelectorAll(".stone-item"))
+    const stoneData = stones.map((stone) => {
+      const multiplierText = stone.querySelector(".reward-multiplier span")?.textContent.trim() || ""
+      const multiplier = Number.parseInt(multiplierText.replace("x", "")) || 0
+      const button = stone.querySelector(".select-stone-button")
+      return { multiplier, button }
+    })
+    const sorted = stoneData.sort((a, b) => b.multiplier - a.multiplier)
+    const top2 = sorted.slice(0, 2)
     for (const stone of top2) {
-      if (!stone.button) continue;
-      stone.button.click();
-      await sleep(1000);
-      const input = document.querySelector('#bet-amount');
-      const confirmBtn = document.querySelector('#confirm-bet');
+      if (!stone.button) continue
+      stone.button.click()
+      await sleep(500)
+      const input = document.querySelector("#bet-amount")
+      const confirmBtn = document.querySelector("#confirm-bet")
       if (input && confirmBtn) {
-        input.value = '20';
-        input.dispatchEvent(new Event('input', { bubbles: true }));
-        await sleep(500);
-        confirmBtn.click();
-        await sleep(2000);
+        input.value = "20"
+        input.dispatchEvent(new Event("input", { bubbles: true }))
+        await sleep(300)
+        confirmBtn.click()
+        await sleep(1000)
       }
     }
     async function claimRewardIfAvailable() {
-      const claimButton = document.querySelector('#claim-reward-button.claim-reward-button');
+      const claimButton = document.querySelector("#claim-reward-button.claim-reward-button")
       if (claimButton) {
-        claimButton.click();
-        await sleep(2000);
+        claimButton.click()
+        await sleep(1000)
       }
     }
   }
 
   async function chucPhuc() {
     const intervalId = setInterval(async () => {
-      const blessingSection = document.querySelector('.blessing-section');
-      if (blessingSection && blessingSection.innerText.includes('Đạo hạo hết Đạo đã gửi lần chúc phúc cho cấp Đội ngày')) {
-        console.log('Đã gửi chúc phúc thành công! Ngừng script.');
-        clearInterval(intervalId);
-        return;
+      const blessingSection = document.querySelector(".blessing-section")
+      if (
+        blessingSection &&
+        blessingSection.innerText.includes("Đạo hạo hết Đạo đã gửi lần chúc phúc cho cấp Đội ngày")
+      ) {
+        console.log("Đã gửi chúc phúc thành công! Ngừng script.")
+        clearInterval(intervalId)
+        return
       }
-      const select = document.querySelector('#blessing-default-options');
-      const blessButton = document.querySelector('.blessing-button');
+      const select = document.querySelector("#blessing-default-options")
+      const blessButton = document.querySelector(".blessing-button")
       if (!select || !blessButton) {
-        console.log('Không tìm thấy phần thiên chúc phúc!');
-        return;
+        console.log("Không tìm thấy phần thiên chúc phúc!")
+        return
       }
       if (select.selectedIndex <= 0) {
-        const totalOptions = select.options.length;
-        const randomIndex = Math.floor(Math.random() * (totalOptions - 1)) + 1;
-        select.selectedIndex = randomIndex;
-        select.dispatchEvent(new Event('change', { bubbles: true }));
-        console.log('Đã chọn lần chúc:', select.options[randomIndex].textContent.trim());
+        const totalOptions = select.options.length
+        const randomIndex = Math.floor(Math.random() * (totalOptions - 1)) + 1
+        select.selectedIndex = randomIndex
+        select.dispatchEvent(new Event("change", { bubbles: true }))
+        console.log("Đã chọn lần chúc:", select.options[randomIndex].textContent.trim())
       }
-      blessButton.click();
-      console.log('Nhấn "Gửi Chúc Phúc"...');
-      await sleep(1000);
-      const confirmButton = document.querySelector('.custom-modal-button.confirm');
+      blessButton.click()
+      console.log('Nhấn "Gửi Chúc Phúc"...')
+      await sleep(500)
+      const confirmButton = document.querySelector(".custom-modal-button.confirm")
       if (confirmButton) {
-        confirmButton.click();
-        console.log('Đã xác nhận thành công!');
+        confirmButton.click()
+        console.log("Đã xác nhận thành công!")
       } else {
-        console.log('Chưa hiện nút xác nhận (có thể do chưa qua captcha).');
+        console.log("Chưa hiện nút xác nhận (có thể do chưa qua captcha).")
       }
-    }, 3000);
+    }, 1500)
   }
 
   function autoClaimRewards() {
-    waitForElement('.reward-box', () => {
-      const rewardBoxes = document.querySelectorAll('.reward-box');
-      if (!rewardBoxes.length) {
-        console.log('[AutoClaimRewards] Không tìm thấy rương phần thưởng.');
-        return;
-      }
-
-      for (const box of rewardBoxes) {
-        const boxId = box.getAttribute('id');
-        const isUnlocked = box.classList.contains('unlocked');
-        const isClaimed = box.classList.contains('claimed');
-
-        if (!isUnlocked) {
-          console.log(`[AutoClaimRewards] Rương ${boxId} chưa được mở khóa.`);
-          continue;
+    waitForElement(
+      ".reward-box",
+      () => {
+        const rewardBoxes = document.querySelectorAll(".reward-box")
+        if (!rewardBoxes.length) {
+          console.log("[AutoClaimRewards] Không tìm thấy rương phần thưởng.")
+          return
         }
 
-        if (isClaimed) {
-          console.log(`[AutoClaimRewards] Rương ${boxId} đã được nhận.`);
-          continue;
-        }
+        let claimedCount = 0
+        const maxClaims = 2 // Đảm bảo nhận 2 rương
 
-        const rewardImage = box.querySelector('.reward-image');
-        if (rewardImage) {
-          rewardImage.click();
-          console.log(`[AutoClaimRewards] Đã nhấn nhận thưởng cho ${boxId}.`);
-          sleep(1000); // Đợi 1 giây để đảm bảo hành động được xử lý
-        } else {
-          console.log(`[AutoClaimRewards] Không tìm thấy hình ảnh rương trong ${boxId}.`);
+        for (const box of rewardBoxes) {
+          const boxId = box.getAttribute("id")
+          const isUnlocked = box.classList.contains("unlocked")
+          const isClaimed = box.classList.contains("claimed")
+
+          if (!isUnlocked) {
+            console.log(`[AutoClaimRewards] Rương ${boxId} chưa được mở khóa.`)
+            continue
+          }
+
+          if (isClaimed) {
+            console.log(`[AutoClaimRewards] Rương ${boxId} đã được nhận.`)
+            continue
+          }
+
+          const rewardImage = box.querySelector(".reward-image")
+          if (rewardImage && claimedCount < maxClaims) {
+            rewardImage.click()
+            console.log(`[AutoClaimRewards] Đã nhấn nhận thưởng cho ${boxId}.`)
+            sleep(500) // Đợi 0.5 giây giữa các lần nhận
+            claimedCount++
+          } else {
+            console.log(`[AutoClaimRewards] Không tìm thấy hình ảnh rương hoặc đã nhận đủ 2 rương trong ${boxId}.`)
+          }
         }
-      }
-    }, 10000); // Tăng timeout lên 10 giây để đảm bảo trang tải xong
+      },
+      5000,
+    ) // Kiểm tra cứ sau 5 giây
   }
 
   async function teLe() {
-    await sleep(3000);
-    const tongKhoElement = document.querySelector('p.tong-kho-dong-gop strong');
+    await sleep(1000)
+    const tongKhoElement = document.querySelector("p.tong-kho-dong-gop strong")
     if (!tongKhoElement) {
-      console.log('Không tìm thấy thiên tin Tổng Kho.');
-      return;
+      console.log("Không tìm thấy thiên tin Tổng Kho.")
+      return
     }
-    const tongKho = parseInt(tongKhoElement.textContent.trim()) || 0;
+    const tongKho = Number.parseInt(tongKhoElement.textContent.trim()) || 0
     if (tongKho < 50) {
-      console.log(`Tổng Kho Đông góp (${tongKho}) dưới 50, không thể thực hiện Tế Lễ.`);
-      return;
+      console.log(`Tổng Kho Đông góp (${tongKho}) dưới 50, không thể thực hiện Tế Lễ.`)
+      return
     }
-    const teLeButton = document.querySelector('#te-le-button');
+    const teLeButton = document.querySelector("#te-le-button")
     if (!teLeButton) {
-      console.log('Không tìm thấy nút Tế Lễ.');
-      return;
+      console.log("Không tìm thấy nút Tế Lễ.")
+      return
     }
-    if (teLeButton.hasAttribute('disabled')) {
-      console.log('Nút Tế Lễ đã bị vô hiệu hóa hoặc đã Tế Lễ.');
-      return;
+    if (teLeButton.hasAttribute("disabled")) {
+      console.log("Nút Tế Lễ đã bị vô hiệu hóa hoặc đã Tế Lễ.")
+      return
     }
-    teLeButton.click();
-    console.log('Đã nhấn nút Tế Lễ.');
-    await sleep(1000);
-    const confirmButton = document.querySelector('.swal2-confirm.swal2-styled');
+    teLeButton.click()
+    console.log("Đã nhấn nút Tế Lễ.")
+    await sleep(500)
+    const confirmButton = document.querySelector(".swal2-confirm.swal2-styled")
     if (confirmButton) {
-      confirmButton.click();
-      console.log('Đã xác nhận Tế Lễ.');
+      confirmButton.click()
+      console.log("Đã xác nhận Tế Lễ.")
     } else {
-      console.log('Không tìm thấy nút xác nhận trước popup.');
+      console.log("Không tìm thấy nút xác nhận trước popup.")
     }
   }
 
   // Chức năng nhận lì xì
   function nhanLiXi() {
-    waitForElement('#openButton.lixi-open-button', button => {
-      console.log('Phát hiện nút Mở Lì Xì, sẽ nhấn sau 2 giây...');
-      setTimeout(() => {
-        button.click();
-        console.log('Đã nhấn nút Mở Lì Xì!');
-      }, 2000);
-    }, 5000); // Kiểm tra cứ sau 5 giây
-    setInterval(() => {
-      const button = document.querySelector('#openButton.lixi-open-button');
-      if (button) {
-        console.log('Phát hiện nút Mở Lì Xì, sẽ nhấn sau 2 giây...');
+    waitForElement(
+      "#openButton.lixi-open-button",
+      (button) => {
+        console.log("Phát hiện nút Mở Lì Xì, sẽ nhấn sau 1 giây...")
         setTimeout(() => {
-          button.click();
-          console.log('Đã nhấn nút Mở Lì Xì!');
-        }, 2000);
+          button.click()
+          console.log("Đã nhấn nút Mở Lì Xì!")
+        }, 1000)
+      },
+      3000,
+    ) // Kiểm tra cứ sau 3 giây
+    setInterval(() => {
+      const button = document.querySelector("#openButton.lixi-open-button")
+      if (button) {
+        console.log("Phát hiện nút Mở Lì Xì, sẽ nhấn sau 1 giây...")
+        setTimeout(() => {
+          button.click()
+          console.log("Đã nhấn nút Mở Lì Xì!")
+        }, 1000)
       }
-    }, 10000); // Kiểm tra lại mỗi 10 giây
+    }, 5000) // Kiểm tra lại mỗi 5 giây
   }
 
-  // Chỉ gọi muteAllAudio nếu URL chứa /phong-cuoi
-  const currentURL = window.location.href;
-  if (currentURL.includes('/phong-cuoi')) {
-    muteAllAudio();
-    chucPhuc(); // Gọi chức năng chúc phúc
-    nhanLiXi(); // Gọi chức năng nhận lì xì
+  // Chức năng đánh bí cảnh
+  function danhBiCanh() {
+    waitForElement(
+      "#challenge-boss-btn",
+      (challengeButton) => {
+        if (challengeButton.textContent.includes("KHIÊU CHIẾN")) {
+          console.log("Phát hiện nút Khiêu Chiến, sẽ nhấn sau 1 giây...")
+          setTimeout(() => {
+            challengeButton.click()
+            console.log("Đã nhấn nút Khiêu Chiến!")
+            waitForElement(
+              "#attack-boss-btn",
+              (attackButton) => {
+                if (attackButton.textContent.includes("Tấn Công")) {
+                  console.log("Phát hiện nút Tấn Công, sẽ nhấn sau 1 giây...")
+                  setTimeout(() => {
+                    attackButton.click()
+                    console.log("Đã nhấn nút Tấn Công!")
+                  }, 1000)
+                }
+              },
+              3000,
+            )
+          }, 1000)
+        }
+      },
+      3000,
+    ) // Kiểm tra cứ sau 3 giây
+    setInterval(() => {
+      const challengeButton = document.querySelector("#challenge-boss-btn")
+      if (challengeButton && challengeButton.textContent.includes("KHIÊU CHIẾN")) {
+        console.log("Phát hiện nút Khiêu Chiến, sẽ nhấn sau 1 giây...")
+        setTimeout(() => {
+          challengeButton.click()
+          console.log("Đã nhấn nút Khiêu Chiến!")
+          const attackButton = document.querySelector("#attack-boss-btn")
+          if (attackButton && attackButton.textContent.includes("Tấn Công")) {
+            console.log("Phát hiện nút Tấn Công, sẽ nhấn sau 1 giây...")
+            setTimeout(() => {
+              attackButton.click()
+              console.log("Đã nhấn nút Tấn Công!")
+            }, 1000)
+          }
+        }, 1000)
+      }
+    }, 5000) // Kiểm tra lại mỗi 5 giây
   }
 
-  if (currentURL.includes('/van-dap-tong-mon')) {
-    vanDap();
-  } else if (currentURL.includes('/diem-danh')) {
-    diemDanh();
-  } else if (currentURL.includes('/phuc-loi-duong')) {
-    phucLoi();
-  } else if (currentURL.includes('/thi-luyen-tong-mon-hh3d')) {
-    thiLuyen();
-  } else if (currentURL.includes('/do-thach-hh3d')) {
-    doThach();
-  } else if (currentURL.includes('/danh-sach-thanh-vien-tong-mon')) {
-    teLe();
-  } else if (currentURL.includes('/bang-hoat-dong-ngay')) { 
-    console.log('[HoatHinh3D] Chạy auto nhận thưởng bảng hoạt động...');
-    autoClaimRewards();
+  // Chức năng luận võ đầu tiên
+  function luanVoDauTien() {
+    waitForElement(
+      "#joinBattleImg",
+      (joinButton) => {
+        console.log("Phát hiện nút Gia Nhập, sẽ nhấn sau 1 giây...")
+        setTimeout(() => {
+          joinButton.click()
+          console.log("Đã nhấn nút Gia Nhập!")
+          waitForElement(
+            ".swal2-confirm.swal2-styled",
+            (confirmButton) => {
+              if (confirmButton.textContent.includes("Tham gia")) {
+                console.log("Phát hiện nút Tham gia, sẽ nhấn sau 1 giây...")
+                setTimeout(() => {
+                  confirmButton.click()
+                  console.log("Đã nhấn nút Tham gia!")
+                  // Kích hoạt auto accept toggle sau khi tham gia
+                  const autoAcceptToggle = document.querySelector("#auto_accept_toggle")
+                  if (autoAcceptToggle && !autoAcceptToggle.checked) {
+                    console.log("Phát hiện nút auto accept, sẽ nhấn sau 1 giây...")
+                    setTimeout(() => {
+                      autoAcceptToggle.click()
+                      console.log("Đã kích hoạt auto accept toggle!")
+                    }, 1000)
+                  }
+                }, 1000)
+              }
+            },
+            3000,
+          )
+        }, 1000)
+      },
+      3000,
+    ) // Kiểm tra cứ sau 3 giây
+    setInterval(() => {
+      const joinButton = document.querySelector("#joinBattleImg")
+      if (joinButton) {
+        console.log("Phát hiện nút Gia Nhập, sẽ nhấn sau 1 giây...")
+        setTimeout(() => {
+          joinButton.click()
+          console.log("Đã nhấn nút Gia Nhập!")
+          const confirmButton = document.querySelector(".swal2-confirm.swal2-styled")
+          if (confirmButton && confirmButton.textContent.includes("Tham gia")) {
+            console.log("Phát hiện nút Tham gia, sẽ nhấn sau 1 giây...")
+            setTimeout(() => {
+              confirmButton.click()
+              console.log("Đã nhấn nút Tham gia!")
+              const autoAcceptToggle = document.querySelector("#auto_accept_toggle")
+              if (autoAcceptToggle && !autoAcceptToggle.checked) {
+                console.log("Phát hiện nút auto accept, sẽ nhấn sau 1 giây...")
+                setTimeout(() => {
+                  autoAcceptToggle.click()
+                  console.log("Đã kích hoạt auto accept toggle!")
+                }, 1000)
+              }
+            }, 1000)
+          }
+        }, 1000)
+      }
+    }, 5000) // Kiểm tra lại mỗi 5 giây
   }
-});
+
+  // Chỉ gọi các chức năng dựa trên URL
+  const currentURL = window.location.href
+  if (currentURL.includes("/phong-cuoi")) {
+    muteAllAudio()
+    chucPhuc() // Gọi chức năng chúc phúc
+    nhanLiXi() // Gọi chức năng nhận lì xì
+  } else if (currentURL.includes("/bi-canh-tong-mon")) {
+    danhBiCanh() // Gọi chức năng đánh bí cảnh
+  } else if (currentURL.includes("/luan-vo-duong")) {
+    luanVoDauTien() // Gọi chức năng luận võ đầu tiên
+  } else if (currentURL.includes("/van-dap-tong-mon")) {
+    vanDap()
+  } else if (currentURL.includes("/diem-danh")) {
+    diemDanh()
+  } else if (currentURL.includes("/phuc-loi-duong")) {
+    phucLoi()
+  } else if (currentURL.includes("/thi-luyen-tong-mon-hh3d")) {
+    thiLuyen()
+  } else if (currentURL.includes("/do-thach-hh3d")) {
+    doThach()
+  } else if (currentURL.includes("/danh-sach-thanh-vien-tong-mon")) {
+    teLe()
+  } else if (currentURL.includes("/bang-hoat-dong-ngay")) {
+    console.log("[HoatHinh3D] Chạy auto nhận thưởng bảng hoạt động...")
+    autoClaimRewards()
+  } else if (currentURL.includes("/hoang-vuc")) {
+    console.log("[HoatHinh3D] Chạy auto Hoang Vực...")
+    hoangVuc()
+  }
+})
+
+// Hàm sleep
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+// Hàm so sánh gần đúng (fuzzy matching)
+function fuzzyMatch(str1, str2) {
+  const s1 = str1.toLowerCase()
+  const s2 = str2.toLowerCase()
+  const matrix = Array(s1.length + 1)
+    .fill(null)
+    .map(() => Array(s2.length + 1).fill(0))
+
+  for (let i = 0; i <= s1.length; i++) {
+    for (let j = 0; j <= s2.length; j++) {
+      if (i === 0 || j === 0) {
+        matrix[i][j] = 0
+      } else if (s1[i - 1] === s2[j - 1]) {
+        matrix[i][j] = matrix[i - 1][j - 1] + 1
+      } else {
+        matrix[i][j] = Math.max(matrix[i - 1][j], matrix[i][j - 1])
+      }
+    }
+  }
+
+  const longestCommonSubsequenceLength = matrix[s1.length][s2.length]
+  return longestCommonSubsequenceLength / Math.max(s1.length, s2.length)
+}
+
+// Hàm đợi element xuất hiện
+function waitForElement(selector, callback, timeout = 5000) {
+  let element = document.querySelector(selector)
+  if (element) {
+    callback(element)
+    return
+  }
+
+  const observer = new MutationObserver((mutations) => {
+    element = document.querySelector(selector)
+    if (element) {
+      callback(element)
+      observer.disconnect()
+    }
+  })
+
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+  })
+
+  setTimeout(() => {
+    observer.disconnect()
+    console.log(`Không tìm thấy element "${selector}" sau ${timeout}ms.`)
+  }, timeout)
+}
+
+// Lắng nghe tin nhắn từ background script
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.message === "clicked_browser_action") {
+    // Lấy URL hiện tại của tab
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      var currentURL = tabs[0].url
+
+      // Kiểm tra URL và thực hiện hành động tương ứng
+      if (currentURL.includes("/tu-luyen")) {
+        // Thêm logic xử lý Tu Luyện
+        console.log("Đang ở trang Tu Luyện")
+        // Thêm code của bạn ở đây
+      } else if (currentURL.includes("/the-gioi")) {
+        // Thêm logic xử lý Thế Giới
+        console.log("Đang ở trang Thế Giới")
+        // Thêm code của bạn ở đây
+      } else if (currentURL.includes("/hoang-vuc")) {
+        hoangVuc()
+      }
+    })
+  }
+})
